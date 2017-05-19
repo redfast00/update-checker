@@ -11,8 +11,11 @@ CONTACT_INFO = "redfast00@gmail.com"
 
 # Update interval in seconds
 UPDATE_INTERVAL = 30 * 60
+
 # Number of updates of a feed
 NUM_UPDATES = 100
+
+FEED_UID_LEN = 32
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')

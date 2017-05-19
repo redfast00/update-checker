@@ -1,4 +1,4 @@
-from app import login_manager, models, app, forms, utils
+from app import login_manager, models, app, forms, utils, db
 from flask import render_template, redirect, url_for
 from flask_login import login_user, logout_user, login_required
 
@@ -22,3 +22,19 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("login"))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = forms.RegistrationForm()
+    if form.validate_on_submit():
+        user = models.User()
+        user.nickname = form.username.data
+        user.email = form.email.data
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        login_user(user)
+        return redirect(url_for("manager"))
+    else:
+        utils.flash_errors(form)
+    return render_template('registration.html', form=form)

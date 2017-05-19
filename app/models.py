@@ -1,5 +1,7 @@
-from app import db
+from app import db, app
 from passlib.hash import bcrypt
+import string
+import random
 
 user_app_association = db.Table('subscriptions', db.Model.metadata,
     db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
@@ -9,20 +11,20 @@ user_app_association = db.Table('subscriptions', db.Model.metadata,
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
-    nickname = db.Column(db.String(120))
+    nickname = db.Column(db.String(120), unique=True)
     passwordhash = db.Column(db.String(60))
     email = db.Column(db.String(255))
-    feed_uid = db.Column(db.String(32), unique=True)
+    feed_uid = db.Column(db.String(app.config["FEED_UID_LEN"]), unique=True)
     subscribed_on = db.relationship("AndroidApp",
         secondary=user_app_association,
         back_populates="subscribers")
-    def __init__():
+    def __init__(self):
         super(User, self ).__init__()
         self.set_feed_uid()
 
     def set_feed_uid(self):
         chars = string.ascii_letters + string.digits
-        size = self.columns.feed_uid.type.length
+        size = app.config["FEED_UID_LEN"]
         self.feed_uid = ''.join(random.choice(chars) for _ in range(size))
     @property
     def is_authenticated(self):
@@ -44,6 +46,9 @@ class User(db.Model):
 
     def verify_password(self, guess):
         return bcrypt.verify(guess, self.passwordhash)
+
+    def set_password(self, password):
+        self.passwordhash = bcrypt.hash(password)
 
 
 class AndroidApp(db.Model):

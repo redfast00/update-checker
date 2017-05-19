@@ -1,6 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, PasswordField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms import StringField, BooleanField, PasswordField, SubmitField, validators
 from app import models, scraper
 from flask_login import current_user
 import re
@@ -8,9 +7,30 @@ import re
 def validate_domain_name(domain):
     return re.match(r'^[a-zA-Z\d-]{1,63}(\.[a-zA-Z\d-]{1,63})+$', domain)
 
+class RegistrationForm(FlaskForm):
+    username = StringField('Username', [validators.Length(min=4, max=25)])
+    email = StringField('Email Address', [validators.Length(min=6, max=35)])
+    password = PasswordField('New Password', [
+        validators.DataRequired(),
+        validators.EqualTo('confirm', message='Passwords must match')
+    ])
+    confirm = PasswordField('Repeat Password')
+
+    def validate(self):
+        rv = FlaskForm.validate(self)
+        if not rv:
+            return False
+        # check if we already have this username
+        if models.User.query.filter_by(nickname=self.username.data).first():
+            self.username.errors.append("Username already used")
+            return False
+        # don't check email
+        return True
+
+
 class LoginForm(FlaskForm):
-    username =  StringField('username', validators=[DataRequired()])
-    password = PasswordField('password', validators=[DataRequired()])
+    username =  StringField('username', validators=[validators.DataRequired()])
+    password = PasswordField('password', validators=[validators.DataRequired()])
     remember_me = BooleanField('remember_me', default=False)
 
     def validate(self):
@@ -44,7 +64,7 @@ class RemoveDomainForm(FlaskForm):
         return True
 
 class AddDomainForm(FlaskForm):
-    domain = StringField('domain', validators=[DataRequired()])
+    domain = StringField('domain', validators=[validators.DataRequired()])
     submit = SubmitField('submit')
     app = None
     def validate(self):
