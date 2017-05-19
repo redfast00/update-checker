@@ -8,13 +8,13 @@ def validate_domain_name(domain):
     return re.match(r'^[a-zA-Z\d-]{1,63}(\.[a-zA-Z\d-]{1,63})+$', domain)
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', [validators.Length(min=4, max=25)])
-    email = StringField('Email Address', [validators.Length(min=6, max=35)])
-    password = PasswordField('New Password', [
+    username = StringField('username', validators=[validators.Length(min=4, max=120)])
+    email = StringField('email', validators=[validators.Length(min=6, max=255)])
+    password = PasswordField('password', validators=[
         validators.DataRequired(),
         validators.EqualTo('confirm', message='Passwords must match')
     ])
-    confirm = PasswordField('Repeat Password')
+    confirm = PasswordField('confirm')
 
     def validate(self):
         rv = FlaskForm.validate(self)
@@ -29,7 +29,10 @@ class RegistrationForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    username =  StringField('username', validators=[validators.DataRequired()])
+    username =  StringField('username', validators=[
+        validators.DataRequired(),
+        validators.Length(min=4, max=120)
+    ])
     password = PasswordField('password', validators=[validators.DataRequired()])
     remember_me = BooleanField('remember_me', default=False)
 
@@ -48,7 +51,7 @@ class LoginForm(FlaskForm):
         return True
 
 class RemoveDomainForm(FlaskForm):
-    to_remove = StringField('to_remove')
+    to_remove = StringField('to_remove', validators=[validators.DataRequired()])
     def validate(self):
         rv = FlaskForm.validate(self)
         if not rv:

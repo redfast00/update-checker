@@ -25,11 +25,15 @@ def manager():
         form_add.app.subscribers.append(current_user)
         db.session.add(form_add.app)
         db.session.commit()
+        return redirect(url_for("manager"))
+    elif form_add.submit.data:
+        utils.flash_errors(form_add)
     if form_remove.to_remove.data and form_remove.validate_on_submit():
         form_remove.app.subscribers.remove(current_user)
-        print(form_remove.to_remove.data)
-    else:
-        utils.flash_errors(form_add)
+        db.session.add(form_remove.app)
+        db.session.commit()
+        return redirect(url_for("manager"))
+    elif form_remove.to_remove.data:
         utils.flash_errors(form_remove)
     return render_template('manager.html', form_add=form_add, form_remove=form_remove, apps=apps, feed_address=feed_address)
 

@@ -54,6 +54,7 @@ class User(db.Model):
 class AndroidApp(db.Model):
     __tablename__ = 'android_app'
     id = db.Column(db.Integer, primary_key=True)
+    # According to documentation, this isn't limited
     android_id =  db.Column(db.String(), index=True, unique=True)
 
     updates = db.relationship("AndroidAppUpdate", back_populates="android_app")
