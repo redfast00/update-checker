@@ -27,9 +27,17 @@ def get_information(android_id):
     c = result.text
     soup = BeautifulSoup(c, "lxml", parse_only=only_information)
 
-    version = clean_text(soup.find("div", {"itemprop": "softwareVersion"}).text)
-    date_str = clean_text(soup.find("div", {"itemprop": "datePublished"}).text)
-    date = parse_date(date_str)
+    date_tag = soup.find("div", {"itemprop": "datePublished"})
+    if date_tag:
+        date_str = clean_text(date_tag.text)
+        date = parse_date(date_str)
+    else:
+        return None
+    versiontag = soup.find("div", {"itemprop": "softwareVersion"})
+    if versiontag:
+        version = clean_text(soup.find("div", {"itemprop": "softwareVersion"}).text)
+    else:
+        version = date.strftime("%Y.%m.%d")
     return({
         "published": date,
         "version": version
