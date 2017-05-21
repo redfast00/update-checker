@@ -4,6 +4,7 @@ import datetime
 
 @scheduler.scheduled_job("interval", seconds=app.config["UPDATE_INTERVAL"])
 def interval_update():
+    app.logger.info("Updating database")
     update_database()
 
 def update_database():

@@ -1,4 +1,5 @@
 import os
+import logging
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 CSRF_ENABLED = True
@@ -20,3 +21,6 @@ FEED_UID_LEN = 32
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+LOG_FILE = '/tmp/update_checker.log'
+LOG_LEVEL = logging.INFO
