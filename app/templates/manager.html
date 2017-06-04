@@ -3,9 +3,9 @@
 {% block content %}
     <h1>App Manager</h1>
     <p>Your feed: <a href="{{ feed_address }}">{{ feed_address }}</a></p>
-    <form name="form_remove" action="" method="post">
+    <form name="form_remove" action="" method="post" id="form_remove">
         {{ form_remove.hidden_tag() }}
-        <div class="list-group">
+        <div class="list-group" id="appcontainer">
         {% for android_app in apps %}
             <div class="list-group-item clearfix">
                 {{ android_app.android_id }}
@@ -14,7 +14,7 @@
         {% endfor %}
         </div>
     </form>
-    <form class="form-horizontal" action="" method="post" name="form_remove">
+    <form class="form-horizontal" action="" method="post" name="form_add" id="form_add">
         {{ form_add.hidden_tag() }}
       <div class="control-group">
         <label class="control-label" for="domain">Android app package</label>
@@ -24,4 +24,49 @@
       </div>
       <button name="submit" type="submit" class="btn" value="1">Add</button>
   </form>
+  <script>
+    $(document).ready(function() {
+        function fix_all(apps)
+        {
+            // First, remove all apps
+            var container = $("#appcontainer")
+            while (appcontainer.firstChild) {
+                appcontainer.removeChild(appcontainer.firstChild);
+            }
+            // Then add them again
+            var template = '<div class="list-group-item clearfix">APP<button class="close" aria-label="Close" type="submit" name="to_remove" value="APP"><span aria-hidden="true">&times;</span></button></div>'
+            for (var i = 0; i < apps.length; i++) {
+                var to_add = template.replace(/APP/g, apps[i])
+                container.append(to_add)
+            }
+        }
+        $('#form_add').submit(function (e) {
+            var url = "{{ url_for('manager') }}";
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: $('#form_add').serialize(),
+                success: function (data) {
+                    fix_all(data.apps)
+                }
+            });
+            e.preventDefault();
+        });
+        $('#form_remove').submit(function (e) {
+            var url = "{{ url_for('manager') }}";
+            var to_send = $('#form_remove').serialize()
+            // Super hacky
+            to_send += "&to_remove=" + e.originalEvent.explicitOriginalTarget.value
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: to_send,
+                success: function (data) {
+                    fix_all(data.apps)
+                }
+            });
+            e.preventDefault(); // block the traditional submission of the form.
+        });
+    });
+</script>
 {% endblock %}
